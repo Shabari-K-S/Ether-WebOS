@@ -2,6 +2,7 @@ import { useOSStore } from './store/osStore';
 import MenuBar from './components/os/MenuBar';
 import Dock from './components/os/Dock';
 import Window from './components/os/Window';
+import AppLauncher from './components/os/AppLauncher';
 
 function App() {
   const { theme, windows } = useOSStore();
@@ -27,6 +28,7 @@ function App() {
         </div>
       </div>
 
+      <AppLauncher />
       <Dock />
     </div>
   );

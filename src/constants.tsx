@@ -1,11 +1,10 @@
-import { Terminal, Folder, Settings, Calculator, Globe } from 'lucide-react';
+import { Terminal, Folder, Settings, Calculator, Globe, LayoutGrid } from 'lucide-react';
 import type { AppID, AppConfig } from './types';
 import FinderApp from './components/apps/Finder';
 import TerminalApp from './components/apps/Terminal';
 import SettingsApp from './components/apps/Settings';
 import CalculatorApp from './components/apps/Calculator';
 import BrowserApp from './components/apps/Browser';
-
 
 export const APPS: Record<AppID, AppConfig> = {
   finder: {

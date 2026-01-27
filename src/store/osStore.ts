@@ -7,6 +7,7 @@ interface OSState {
   activeWindowId: string | null;
   theme: ThemeConfig;
   fileSystem: Record<string, FileSystemNode>;
+  isLauncherOpen: boolean;
 
   // Actions
   launchApp: (appId: AppID) => void;
@@ -20,6 +21,8 @@ interface OSState {
   toggleDarkMode: () => void;
   setBrightness: (value: number) => void;
   setVolume: (value: number) => void;
+  toggleLauncher: () => void;
+  setLauncherOpen: (isOpen: boolean) => void;
 
   // File System Actions
   createFile: (parentId: string, name: string, content: string) => void;
@@ -43,6 +46,10 @@ export const useOSStore = create<OSState>((set, get) => ({
     volume: 50,
   },
   fileSystem: initialFileSystem,
+  isLauncherOpen: false,
+
+  toggleLauncher: () => set((state) => ({ isLauncherOpen: !state.isLauncherOpen })),
+  setLauncherOpen: (isOpen) => set({ isLauncherOpen: isOpen }),
 
   launchApp: (appId) => {
     const { windows } = get();
@@ -62,6 +69,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     set((state) => ({
       windows: [...state.windows, newWindow],
       activeWindowId: id,
+      isLauncherOpen: false, // Close launcher on app launch
     }));
   },
 
