@@ -3,6 +3,7 @@ import type { AppID, AppConfig } from './types';
 import FinderApp from './components/apps/Finder';
 import TerminalApp from './components/apps/Terminal';
 import SettingsApp from './components/apps/Settings';
+import CalculatorApp from './components/apps/Calculator';
 
 // Placeholder components for apps not fully implemented in this demo
 const PlaceholderApp = ({ name }: { name: string }) => (
@@ -40,16 +41,16 @@ export const APPS: Record<AppID, AppConfig> = {
     id: 'calculator',
     name: 'Calculator',
     icon: Calculator,
-    component: () => <PlaceholderApp name="Calculator" />,
-    defaultWidth: 300,
-    defaultHeight: 400,
+    component: CalculatorApp,
+    defaultWidth: 320,
+    defaultHeight: 450,
   },
   browser: {
     id: 'browser',
     name: 'Browser',
     icon: Globe,
-    component: () => <PlaceholderApp name="Browser" />,
-    defaultWidth: 900,
+    component: PlaceholderApp,
+    defaultWidth: 1000,
     defaultHeight: 600,
   }
 };
