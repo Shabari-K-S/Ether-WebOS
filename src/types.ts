@@ -32,13 +32,19 @@ export interface FileSystemNode {
   children?: string[]; // IDs of children
 }
 
+export interface AppProps {
+  windowId: string;
+  onWindowDrag?: (e: React.MouseEvent) => void;
+}
+
 export interface AppConfig {
   id: AppID;
   name: string;
   icon: React.ComponentType<any>;
-  component: React.ComponentType<any>;
+  component: React.ComponentType<AppProps>;
   defaultWidth: number;
   defaultHeight: number;
+  hideTitleBar?: boolean;
 }
 
 export interface ThemeConfig {

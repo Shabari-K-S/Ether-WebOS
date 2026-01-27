@@ -4,13 +4,8 @@ import FinderApp from './components/apps/Finder';
 import TerminalApp from './components/apps/Terminal';
 import SettingsApp from './components/apps/Settings';
 import CalculatorApp from './components/apps/Calculator';
+import BrowserApp from './components/apps/Browser';
 
-// Placeholder components for apps not fully implemented in this demo
-const PlaceholderApp = ({ name }: { name: string }) => (
-  <div className="flex items-center justify-center h-full text-gray-500">
-    {name} is coming soon.
-  </div>
-);
 
 export const APPS: Record<AppID, AppConfig> = {
   finder: {
@@ -44,13 +39,15 @@ export const APPS: Record<AppID, AppConfig> = {
     component: CalculatorApp,
     defaultWidth: 320,
     defaultHeight: 450,
+    hideTitleBar: true, // Calculator often looks better without heavy chrome too
   },
   browser: {
     id: 'browser',
     name: 'Browser',
     icon: Globe,
-    component: PlaceholderApp,
+    component: BrowserApp,
     defaultWidth: 1000,
     defaultHeight: 600,
+    hideTitleBar: true,
   }
 };

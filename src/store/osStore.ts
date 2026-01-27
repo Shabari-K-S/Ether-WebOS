@@ -7,7 +7,7 @@ interface OSState {
   activeWindowId: string | null;
   theme: ThemeConfig;
   fileSystem: Record<string, FileSystemNode>;
-  
+
   // Actions
   launchApp: (appId: AppID) => void;
   closeWindow: (id: string) => void;
@@ -18,7 +18,9 @@ interface OSState {
   updateWindowSize: (id: string, width: number, height: number) => void;
   setWallpaper: (url: string) => void;
   toggleDarkMode: () => void;
-  
+  setBrightness: (value: number) => void;
+  setVolume: (value: number) => void;
+
   // File System Actions
   createFile: (parentId: string, name: string, content: string) => void;
   createFolder: (parentId: string, name: string) => void;
@@ -74,7 +76,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     set((state) => {
       // Move focused window to top of z-index stack conceptually by reordering or maxing zIndex
       const maxZ = Math.max(...state.windows.map(w => w.zIndex), 0);
-      const updatedWindows = state.windows.map(w => 
+      const updatedWindows = state.windows.map(w =>
         w.id === id ? { ...w, zIndex: maxZ + 1 } : w
       );
       return { windows: updatedWindows, activeWindowId: id };
@@ -122,12 +124,20 @@ export const useOSStore = create<OSState>((set, get) => ({
     set((state) => ({ theme: { ...state.theme, isDarkMode: !state.theme.isDarkMode } }));
   },
 
+  setBrightness: (value) => {
+    set((state) => ({ theme: { ...state.theme, brightness: value } }));
+  },
+
+  setVolume: (value) => {
+    set((state) => ({ theme: { ...state.theme, volume: value } }));
+  },
+
   createFile: (parentId, name, content) => {
     set((state) => {
       const id = `file-${Date.now()}`;
       const newFile: FileSystemNode = { id, name, type: 'file', parentId, content };
       const parent = state.fileSystem[parentId];
-      
+
       if (!parent) return state;
 
       return {

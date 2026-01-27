@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useOSStore } from '../../store/osStore';
+import type { AppProps } from '../../types';
 
 interface ButtonProps {
     label: string;
@@ -32,7 +33,7 @@ const CalculatorButton: React.FC<ButtonProps> = React.memo(({ label, type = 'num
     );
 });
 
-const CalculatorApp: React.FC = () => {
+const CalculatorApp: React.FC<AppProps> = ({ onWindowDrag }) => {
     const { theme } = useOSStore();
     const [display, setDisplay] = useState('0');
     const [prevValue, setPrevValue] = useState<number | null>(null);
@@ -47,7 +48,7 @@ const CalculatorApp: React.FC = () => {
             if (prevDisplay === '0') {
                 return digit;
             }
-            if (prevDisplay.length > 9) return prevDisplay; // Limit length
+            if (prevDisplay.length > 9) return prevDisplay;
             return prevDisplay + digit;
         });
         if (waitingForOperand) {
@@ -96,7 +97,6 @@ const CalculatorApp: React.FC = () => {
             setPrevValue(inputValue);
         } else if (operator) {
             const currentValue = prevValue || 0;
-            // If we hit an operator but were waiting for an operand (e.g. 5 + *), just update the operator
             if (!waitingForOperand || nextOperator === '=') {
                 const newValue = calculate(currentValue, inputValue, operator);
                 setPrevValue(newValue);
@@ -108,16 +108,10 @@ const CalculatorApp: React.FC = () => {
         setOperator(nextOperator);
     }, [display, prevValue, operator, waitingForOperand]);
 
-    // Keyboard support
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             const key = e.key;
-
-            // Prevent default browser actions for calculator keys to avoid side effects
-            if (['Enter', ' ', '+', '-', '*', '/'].includes(key)) {
-                e.preventDefault();
-            }
-
+            if (['Enter', ' ', '+', '-', '*', '/'].includes(key)) e.preventDefault();
             if (key >= '0' && key <= '9') inputDigit(key);
             if (key === '.') inputDot();
             if (key === 'Enter' || key === '=') performOperation('=');
@@ -128,13 +122,18 @@ const CalculatorApp: React.FC = () => {
             if (key === '*') performOperation('*');
             if (key === '/') performOperation('/');
         };
-
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [inputDigit, inputDot, performOperation, clear]);
 
     return (
-        <div className={`h-full flex flex-col p-4 select-none ${theme.isDarkMode ? 'bg-black text-white' : 'bg-[#f0f0f0] text-black'}`}>
+        <div
+            className={`h-full flex flex-col p-4 select-none ${theme.isDarkMode ? 'bg-black text-white' : 'bg-[#f0f0f0] text-black'}`}
+            onMouseDown={onWindowDrag}
+        >
+            {/* Spacer for Traffic Lights */}
+            <div className="h-6 w-full" />
+
             <div className="flex-1 flex items-end justify-end mb-4 px-2">
                 <span className="text-5xl font-light tracking-tight truncate">{display}</span>
             </div>

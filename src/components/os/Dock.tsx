@@ -36,7 +36,6 @@ const Dock: React.FC = () => {
               bg-gradient-to-br from-gray-700 to-black text-white
               ${app.id === 'finder' ? 'from-blue-400 to-blue-600' : ''}
               ${app.id === 'settings' ? 'from-gray-300 to-gray-500' : ''}
-              ${app.id === 'genius' ? 'from-purple-400 to-indigo-600' : ''}
               ${app.id === 'terminal' ? 'from-gray-800 to-black' : ''}
             `}>
               <app.icon size={28} />
