@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint';
+export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint' | 'game2048';
 
 export interface Position {
   x: number;

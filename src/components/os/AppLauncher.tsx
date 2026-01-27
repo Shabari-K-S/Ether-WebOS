@@ -79,18 +79,12 @@ const AppLauncher: React.FC = () => {
                         className="group flex flex-col items-center gap-4 transition-all duration-200 hover:scale-110"
                     >
                         <div className={`
-              w-20 h-20 md:w-24 md:h-24 rounded-[22px] flex items-center justify-center shadow-2xl transition-all duration-200
-              ${typeof app.icon === 'string'
-                                ? 'bg-transparent'
-                                : `bg-gradient-to-br from-gray-700 to-black text-white
-                     ${app.id === 'finder' ? 'from-blue-400 to-blue-600' : ''}
-                     ${app.id === 'settings' ? 'from-gray-300 to-gray-500' : ''}
-                     ${app.id === 'terminal' ? 'from-gray-800 to-black' : ''}
-                     ${app.id === 'pixelpaint' ? 'from-gray-800 to-black' : ''}`
+                            w-20 h-20 md:w-24 md:h-24 rounded-[22px] flex items-center justify-center shadow-2xl transition-all duration-200
+                            ${typeof app.icon === 'string'
+                                ? 'bg-zinc-200 to-br from-gray-300 to-gray-600 text-white'
+                                : 'bg-transparent'
                             }
-              group-hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]
-              transition-shadow
-            `}>
+                        `}>
                             {typeof app.icon === 'string' ? (
                                 <img src={app.icon} alt={app.name} className="w-full h-full object-contain drop-shadow-md" />
                             ) : (

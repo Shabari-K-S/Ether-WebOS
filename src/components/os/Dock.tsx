@@ -24,8 +24,8 @@ const Dock: React.FC = () => {
       <div className={`
         w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-200
         ${typeof icon === 'string'
-          ? 'bg-transparent'
-          : 'bg-gradient-to-br from-gray-700 to-black text-white'
+          ? 'bg-zinc-200 to-br from-gray-300 to-gray-600 text-white'
+          : 'bg-transparent'
         }
       `}>
         {typeof icon === 'string' ? (
