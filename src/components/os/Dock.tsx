@@ -7,7 +7,7 @@ const Dock: React.FC = () => {
   const { launchApp, theme, toggleLauncher } = useOSStore();
   const dockRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = () => {
     // Future scale effect logic
   };
 
