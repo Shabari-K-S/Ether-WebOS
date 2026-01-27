@@ -27,13 +27,16 @@ interface OSState {
   // File System Actions
   createFile: (parentId: string, name: string, content: string) => void;
   createFolder: (parentId: string, name: string) => void;
+  deleteNode: (id: string) => void;
+  updateFileContent: (id: string, content: string) => void;
 }
 
 const initialFileSystem: Record<string, FileSystemNode> = {
   'root': { id: 'root', name: 'Macintosh HD', type: 'folder', parentId: null, children: ['home'] },
   'home': { id: 'home', name: 'User', type: 'folder', parentId: 'root', children: ['docs', 'welcome'] },
-  'docs': { id: 'docs', name: 'Documents', type: 'folder', parentId: 'home', children: [] },
+  'docs': { id: 'docs', name: 'Documents', type: 'folder', parentId: 'home', children: ['notes-sample'] },
   'welcome': { id: 'welcome', name: 'welcome.txt', type: 'file', parentId: 'home', content: 'Welcome to Ether OS! This is a demo running in React.' },
+  'notes-sample': { id: 'notes-sample', name: 'Ideas.txt', type: 'file', parentId: 'docs', content: '- Build a cool OS\n- Learn Gemini API\n- Coffee break' },
 };
 
 export const useOSStore = create<OSState>((set, get) => ({
@@ -142,7 +145,7 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   createFile: (parentId, name, content) => {
     set((state) => {
-      const id = `file-${Date.now()}`;
+      const id = `file-${Date.now()}-${Math.random()}`;
       const newFile: FileSystemNode = { id, name, type: 'file', parentId, content };
       const parent = state.fileSystem[parentId];
 
@@ -163,7 +166,7 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   createFolder: (parentId, name) => {
     set((state) => {
-      const id = `folder-${Date.now()}`;
+      const id = `folder-${Date.now()}-${Math.random()}`;
       const newFolder: FileSystemNode = { id, name, type: 'folder', parentId, children: [] };
       const parent = state.fileSystem[parentId];
 
@@ -180,5 +183,35 @@ export const useOSStore = create<OSState>((set, get) => ({
         }
       };
     });
+  },
+
+  deleteNode: (id) => {
+    set((state) => {
+      const node = state.fileSystem[id];
+      if (!node) return state;
+      const parentId = node.parentId;
+      if (!parentId) return state; // Can't delete root
+
+      const parent = state.fileSystem[parentId];
+      const newParent = {
+        ...parent,
+        children: parent.children?.filter(childId => childId !== id)
+      };
+
+      const newFileSystem = { ...state.fileSystem };
+      delete newFileSystem[id];
+      newFileSystem[parentId] = newParent;
+
+      return { fileSystem: newFileSystem };
+    });
+  },
+
+  updateFileContent: (id, content) => {
+    set((state) => ({
+      fileSystem: {
+        ...state.fileSystem,
+        [id]: { ...state.fileSystem[id], content }
+      }
+    }));
   }
 }));

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser';
+export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint';
 
 export interface Position {
   x: number;
@@ -40,7 +40,7 @@ export interface AppProps {
 export interface AppConfig {
   id: AppID;
   name: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<any> | string;
   component: React.ComponentType<AppProps>;
   defaultWidth: number;
   defaultHeight: number;

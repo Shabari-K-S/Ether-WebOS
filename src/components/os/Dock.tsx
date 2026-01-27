@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useOSStore } from '../../store/osStore';
 import { APPS } from '../../constants';
-import { LayoutGrid } from 'lucide-react';
+
 
 const Dock: React.FC = () => {
   const { launchApp, theme, toggleLauncher } = useOSStore();
@@ -15,22 +15,24 @@ const Dock: React.FC = () => {
   const finder = apps.find(a => a.id === 'finder');
   const otherApps = apps.filter(a => a.id !== 'finder');
 
-  const renderDockItem = (id: string, name: string, icon: React.ElementType, onClick: () => void) => (
+  const renderDockItem = (id: string, name: string, icon: React.ElementType | string, onClick: () => void) => (
     <button
       key={id}
       onClick={onClick}
       className="group relative flex flex-col items-center justify-end transition-all duration-200 ease-out hover:-translate-y-2 hover:scale-125 origin-bottom p-1"
     >
       <div className={`
-        w-12 h-12 rounded-xl flex items-center justify-center shadow-lg
-        bg-gradient-to-br from-gray-700 to-black text-white
-        ${id === 'finder' ? 'from-blue-400 to-blue-600' : ''}
-        ${id === 'settings' ? 'from-gray-300 to-gray-500' : ''}
-        ${id === 'genius' ? 'from-purple-400 to-indigo-600' : ''}
-        ${id === 'terminal' ? 'from-gray-800 to-black' : ''}
-        ${id === 'launchpad' ? 'from-gray-500 to-gray-700' : ''}
+        w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-200
+        ${typeof icon === 'string'
+          ? 'bg-transparent'
+          : 'bg-gradient-to-br from-gray-700 to-black text-white'
+        }
       `}>
-        {React.createElement(icon, { size: 28 })}
+        {typeof icon === 'string' ? (
+          <img src={icon} alt={name} className="w-full h-full object-contain drop-shadow-md" />
+        ) : (
+          React.createElement(icon, { size: 28 })
+        )}
       </div>
       <span className={`
         absolute -top-10 bg-black/70 text-white text-xs px-2 py-1 rounded opacity-0 
@@ -54,7 +56,7 @@ const Dock: React.FC = () => {
         `}
       >
         {/* Launchpad (First) */}
-        {renderDockItem('launchpad', 'Launchpad', LayoutGrid, toggleLauncher)}
+        {renderDockItem('launchpad', 'Launchpad', 'https://img.icons8.com/color/96/launch-box.png', toggleLauncher)}
 
         {/* Finder (Second) */}
         {finder && renderDockItem(finder.id, finder.name, finder.icon, () => launchApp(finder.id))}
