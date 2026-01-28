@@ -33,7 +33,7 @@ const AppLauncher: React.FC = () => {
     if (!isVisible) return null;
 
     const filteredApps = Object.values(APPS).filter(app =>
-        app.name.toLowerCase().includes(searchTerm.toLowerCase())
+        !app.hideFromLauncher && app.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -72,7 +72,7 @@ const AppLauncher: React.FC = () => {
                 className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-8 md:gap-12 max-w-5xl px-8"
                 onClick={e => e.stopPropagation()}
             >
-                {Object.values(APPS).map((app) => (
+                {filteredApps.map((app) => (
                     <button
                         key={app.id}
                         onClick={() => launchApp(app.id)}

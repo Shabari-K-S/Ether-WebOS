@@ -10,6 +10,8 @@ import cameraIcon from './assets/camera.webp';
 import { Activity } from 'lucide-react';
 import CalendarIcon from './assets/calendar.webp';
 import ClockIcon from './assets/clock.webp';
+import snakeIcon from './assets/snake.webp';
+import minesweeperIcon from './assets/minesweeper.webp';
 
 export interface AppMetadata {
     id: AppID;
@@ -18,6 +20,9 @@ export interface AppMetadata {
     defaultWidth: number;
     defaultHeight: number;
     hideTitleBar?: boolean;
+    favorite?: boolean;
+    hideFromDock?: boolean;
+    hideFromLauncher?: boolean;
 }
 
 export const APP_METADATA: Record<AppID, AppMetadata> = {
@@ -27,6 +32,7 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         icon: finderIcon,
         defaultWidth: 800,
         defaultHeight: 500,
+        favorite: true,
     },
     browser: {
         id: 'browser',
@@ -35,6 +41,7 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         defaultWidth: 1000,
         defaultHeight: 600,
         hideTitleBar: true,
+        favorite: true,
     },
     notes: {
         id: 'notes',
@@ -42,6 +49,7 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         icon: notesIcon,
         defaultWidth: 700,
         defaultHeight: 500,
+        favorite: true,
     },
     camera: {
         id: 'camera',
@@ -86,6 +94,7 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         icon: terminalIcon,
         defaultWidth: 600,
         defaultHeight: 400,
+        favorite: true,
     },
     settings: {
         id: 'settings',
@@ -93,6 +102,7 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         icon: 'https://img.icons8.com/color/96/apple-settings.png',
         defaultWidth: 600,
         defaultHeight: 450,
+        favorite: true,
     },
     calculator: {
         id: 'calculator',
@@ -115,5 +125,23 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         icon: 'https://img.icons8.com/ios-filled/100/info.png',
         defaultWidth: 400,
         defaultHeight: 520,
+        hideFromDock: true,
+        hideFromLauncher: true,
+    },
+    snake: {
+        id: 'snake',
+        name: 'Snake',
+        icon: snakeIcon,
+        defaultWidth: 500,
+        defaultHeight: 580,
+        hideTitleBar: true,
+    },
+    minesweeper: {
+        id: 'minesweeper',
+        name: 'Minesweeper',
+        icon: minesweeperIcon,
+        defaultWidth: 550,
+        defaultHeight: 680,
+        hideTitleBar: true,
     },
 };

@@ -12,10 +12,17 @@ const Dock: React.FC = () => {
   };
 
   const apps = Object.values(APPS);
-  const finder = apps.find(a => a.id === 'finder');
-  const otherApps = apps.filter(a => a.id !== 'finder');
 
+  // Dock should show apps that are:
+  // 1. Marked as favorite in config
+  // 2. Currently have an open window
+  // 3. Not explicitly hidden from the dock
+  const dockApps = apps.filter(app =>
+    !app.hideFromDock && (app.favorite || windows.some(w => w.appId === app.id))
+  );
 
+  const finder = dockApps.find(a => a.id === 'finder');
+  const otherApps = dockApps.filter(a => a.id !== 'finder');
 
   const renderDockItem = (id: string, name: string, icon: React.ElementType | string, onClick: () => void) => {
     const isOpen = windows.some(w => w.appId === id);

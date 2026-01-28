@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint' | 'game2048' | 'taskmanager' | 'calendar' | 'clock' | 'about';
+export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint' | 'game2048' | 'taskmanager' | 'calendar' | 'clock' | 'about' | 'snake' | 'minesweeper';
 
 export interface Position {
   x: number;
@@ -47,6 +47,9 @@ export interface AppConfig {
   defaultWidth: number;
   defaultHeight: number;
   hideTitleBar?: boolean;
+  favorite?: boolean;
+  hideFromDock?: boolean;
+  hideFromLauncher?: boolean;
 }
 
 export interface ThemeConfig {
