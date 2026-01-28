@@ -109,4 +109,11 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         defaultWidth: 500,
         defaultHeight: 400,
     },
+    about: {
+        id: 'about',
+        name: 'About This Ether',
+        icon: 'https://img.icons8.com/ios-filled/100/info.png',
+        defaultWidth: 400,
+        defaultHeight: 520,
+    },
 };

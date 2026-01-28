@@ -98,7 +98,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
 
   const handleMouseDown = (e: React.MouseEvent) => {
     // Only drag if not clicking a button/input
-    if ((e.target as HTMLElement).tagName === 'BUTTON' || (e.target as HTMLElement).tagName === 'INPUT') {
+    if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('input') || (e.target as HTMLElement).closest('textarea')) {
       return;
     }
     e.stopPropagation();
@@ -199,7 +199,7 @@ const Window: React.FC<WindowProps> = ({ windowState }) => {
       {/* Content */}
       <div className={`flex-1 overflow-hidden relative flex flex-col ${(!windowState.isMaximized && !appConfig.hideTitleBar) ? 'rounded-b-xl' : (windowState.isMaximized ? '' : 'rounded-xl')}`}>
         {(isDragging || isResizing) && <div className="absolute inset-0 z-50 bg-transparent" />}
-        <AppContent windowId={windowState.id} onWindowDrag={handleMouseDown} />
+        <AppContent windowId={windowState.id} onWindowDrag={handleMouseDown} launchArgs={windowState.launchArgs} />
       </div>
     </div>
   );

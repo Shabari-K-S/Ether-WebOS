@@ -12,6 +12,7 @@ import Game2048App from './components/apps/Game2048';
 import TaskManagerApp from './components/apps/TaskManager';
 import CalendarApp from './components/apps/Calendar';
 import ClockApp from './components/apps/Clock';
+import AboutApp from './components/apps/About';
 
 import { APP_METADATA } from './apps.config';
 
@@ -28,6 +29,7 @@ const APP_COMPONENTS: Record<AppID, React.ComponentType<any>> = {
   taskmanager: TaskManagerApp,
   calendar: CalendarApp,
   clock: ClockApp,
+  about: AboutApp,
 };
 
 // Merge metadata with components

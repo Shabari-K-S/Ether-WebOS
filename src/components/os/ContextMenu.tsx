@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useOSStore } from '../../store/osStore';
 
 export interface ContextMenuItem {
@@ -46,7 +47,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
         left: Math.min(x, window.innerWidth - 200), // Width of menu
     };
 
-    return (
+    return createPortal(
         <div
             ref={menuRef}
             className={`fixed z-[9999] w-52 rounded-xl border shadow-xl backdrop-blur-xl
@@ -95,7 +96,8 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
                     </button>
                 );
             })}
-        </div>
+        </div>,
+        document.body
     );
 };
 

@@ -4,14 +4,23 @@ import type { AppProps } from '../../types';
 import { Plus, Trash2, FileText } from 'lucide-react';
 
 const Notes: React.FC<AppProps> = ({ onWindowDrag, launchArgs }) => {
-    const { fileSystem, createFile, updateFileContent, deleteNode, theme } = useOSStore();
+    const { fileSystem, createFile, updateFileContent, deleteNode, renameNode, theme } = useOSStore();
     const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
     // Get 'docs' folder children
     const docsFolder = fileSystem['docs'];
-    const notes = docsFolder?.children
+    const defaultNotes = docsFolder?.children
         ?.map(id => fileSystem[id])
         .filter(node => node.type === 'file') || [];
+
+    // If active note is not in defaultNotes (e.g. opened from Desktop), add it to the list for visibility
+    const notes = [...defaultNotes];
+    if (activeNoteId && !notes.find(n => n.id === activeNoteId)) {
+        const activeNode = fileSystem[activeNoteId];
+        if (activeNode) {
+            notes.unshift(activeNode); // Add to top
+        }
+    }
 
     // Auto-select note from launchArgs or first note
     useEffect(() => {
@@ -23,7 +32,8 @@ const Notes: React.FC<AppProps> = ({ onWindowDrag, launchArgs }) => {
     }, [launchArgs?.fileId, notes.length, activeNoteId]);
 
     const handleCreateNote = () => {
-        createFile('docs', `Note ${notes.length + 1}.txt`, '');
+        const newId = createFile('docs', `Note ${notes.length + 1}.txt`, '');
+        setActiveNoteId(newId);
     };
 
     const handleDeleteNote = (id: string) => {
@@ -78,7 +88,25 @@ const Notes: React.FC<AppProps> = ({ onWindowDrag, launchArgs }) => {
                 {activeNote ? (
                     <>
                         <div className="p-4 border-b border-inherit flex items-center justify-between">
-                            <span className="text-xs opacity-50">{new Date().toLocaleString()}</span>
+                            <input
+                                value={activeNote.name.replace('.txt', '')}
+                                onChange={() => {
+                                    // Controlled input handled by default value for now, 
+                                    // but to make it editable we should probably track local state or just use onBlur.
+                                    // Let's stick to onBlur for the actual rename to avoid syncing issues while typing.
+                                }}
+                                className="bg-transparent font-bold outline-none text-sm w-full"
+                                placeholder="Untitled"
+                                onBlur={(e) => {
+                                    const newName = e.target.value.trim();
+                                    if (newName && newName !== activeNote.name.replace('.txt', '')) {
+                                        renameNode(activeNote.id, newName + '.txt');
+                                    }
+                                }}
+                                defaultValue={activeNote.name.replace('.txt', '')}
+                                key={activeNote.id} // Re-render input when changing note
+                            />
+                            <span className="text-xs opacity-50 whitespace-nowrap ml-2">{new Date().toLocaleString()}</span>
                         </div>
                         <textarea
                             value={activeNote.content || ''}

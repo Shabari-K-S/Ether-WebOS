@@ -41,7 +41,7 @@ interface OSState {
   removeNotification: (id: string) => void;
 
   // File System Actions
-  createFile: (parentId: string, name: string, content: string) => void;
+  createFile: (parentId: string, name: string, content: string) => string;
   createFolder: (parentId: string, name: string) => void;
   deleteNode: (id: string) => void;
   renameNode: (id: string, newName: string) => void;
@@ -103,6 +103,8 @@ export const useOSStore = create<OSState>()(
         // Better: If launchArgs provided, maybe we want to pass it to NEW window.
 
         const id = `${appId}-${Date.now()}`;
+        const maxZ = Math.max(0, ...windows.map(w => w.zIndex));
+
         const newWindow: WindowState = {
           id,
           appId,
@@ -111,7 +113,7 @@ export const useOSStore = create<OSState>()(
           size: { width: 0, height: 0 },
           isMinimized: false,
           isMaximized: false,
-          zIndex: windows.length + 1,
+          zIndex: maxZ + 1,
           launchArgs: launchArgs, // Store args here
         };
 
@@ -189,8 +191,8 @@ export const useOSStore = create<OSState>()(
       },
 
       createFile: (parentId, name, content) => {
+        const id = `file-${Date.now()}-${Math.random()}`;
         set((state) => {
-          const id = `file-${Date.now()}-${Math.random()}`;
           const newFile: FileSystemNode = { id, name, type: 'file', parentId, content };
           const parent = state.fileSystem[parentId];
 
@@ -207,6 +209,7 @@ export const useOSStore = create<OSState>()(
             }
           };
         });
+        return id;
       },
 
       createFolder: (parentId, name) => {

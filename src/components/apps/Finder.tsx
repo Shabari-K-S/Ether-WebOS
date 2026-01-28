@@ -9,7 +9,7 @@ interface FinderProps {
 }
 
 const Finder: React.FC<FinderProps> = () => {
-  const { fileSystem, theme, renameNode, launchApp } = useOSStore();
+  const { fileSystem, theme, renameNode, launchApp, createFile, createFolder } = useOSStore();
   const [currentPathId, setCurrentPathId] = useState<string>('home');
   const [history, setHistory] = useState<string[]>(['home']);
 
@@ -77,6 +77,28 @@ const Finder: React.FC<FinderProps> = () => {
     });
   };
 
+  const handleBackgroundContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Do not stop propagation if we want to allow desktop menu? 
+    // Actually, Finder window should probably have its own context menu.
+    e.stopPropagation();
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      items: [
+        {
+          label: 'New Folder',
+          action: () => createFolder(currentPathId, 'New Folder'),
+        },
+        {
+          label: 'New Text File',
+          action: () => createFile(currentPathId, 'Untitled.txt', ''),
+        },
+      ]
+    });
+  };
+
   const handleRenameSave = () => {
     if (renamingId && tempName.trim()) {
       renameNode(renamingId, tempName.trim());
@@ -139,7 +161,7 @@ const Finder: React.FC<FinderProps> = () => {
         </div>
 
         {/* File Grid - Scrollable area with responsive grid */}
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-4 overflow-y-auto" onContextMenu={handleBackgroundContextMenu}>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-4">
             {currentFolder?.children?.map((childId) => {
               const node = fileSystem[childId];
