@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import type { AppID, WindowState, ThemeConfig, FileSystemNode } from '../types';
 import { WALLPAPERS } from '../wallpapers';
 
@@ -8,8 +9,10 @@ interface OSState {
   theme: ThemeConfig;
   fileSystem: Record<string, FileSystemNode>;
   isLauncherOpen: boolean;
+  isLocked: boolean;
 
   // Actions
+  setLocked: (locked: boolean) => void;
   launchApp: (appId: AppID) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
@@ -28,6 +31,7 @@ interface OSState {
   createFile: (parentId: string, name: string, content: string) => void;
   createFolder: (parentId: string, name: string) => void;
   deleteNode: (id: string) => void;
+  renameNode: (id: string, newName: string) => void;
   updateFileContent: (id: string, content: string) => void;
 }
 
@@ -39,179 +43,203 @@ const initialFileSystem: Record<string, FileSystemNode> = {
   'notes-sample': { id: 'notes-sample', name: 'Ideas.txt', type: 'file', parentId: 'docs', content: '- Build a cool OS\n- Learn Gemini API\n- Coffee break' },
 };
 
-export const useOSStore = create<OSState>((set, get) => ({
-  windows: [],
-  activeWindowId: null,
-  theme: {
-    wallpaper: WALLPAPERS[0],
-    isDarkMode: true,
-    brightness: 100,
-    volume: 50,
-  },
-  fileSystem: initialFileSystem,
-  isLauncherOpen: false,
-
-  toggleLauncher: () => set((state) => ({ isLauncherOpen: !state.isLauncherOpen })),
-  setLauncherOpen: (isOpen) => set({ isLauncherOpen: isOpen }),
-
-  launchApp: (appId) => {
-    const { windows } = get();
-    // Simple ID generation
-    const id = `${appId}-${Date.now()}`;
-    const newWindow: WindowState = {
-      id,
-      appId,
-      title: '', // Title set by app usually
-      position: { x: 100 + windows.length * 30, y: 50 + windows.length * 30 },
-      size: { width: 0, height: 0 }, // Will be set by AppConfig default
-      isMinimized: false,
-      isMaximized: false,
-      zIndex: windows.length + 1,
-    };
-
-    set((state) => ({
-      windows: [...state.windows, newWindow],
-      activeWindowId: id,
-      isLauncherOpen: false, // Close launcher on app launch
-    }));
-  },
-
-  closeWindow: (id) => {
-    set((state) => ({
-      windows: state.windows.filter((w) => w.id !== id),
-      activeWindowId: state.activeWindowId === id ? null : state.activeWindowId,
-    }));
-  },
-
-  focusWindow: (id) => {
-    set((state) => {
-      // Move focused window to top of z-index stack conceptually by reordering or maxing zIndex
-      const maxZ = Math.max(...state.windows.map(w => w.zIndex), 0);
-      const updatedWindows = state.windows.map(w =>
-        w.id === id ? { ...w, zIndex: maxZ + 1 } : w
-      );
-      return { windows: updatedWindows, activeWindowId: id };
-    });
-  },
-
-  minimizeWindow: (id) => {
-    set((state) => ({
-      windows: state.windows.map((w) =>
-        w.id === id ? { ...w, isMinimized: !w.isMinimized } : w
-      ),
+export const useOSStore = create<OSState>()(
+  persist(
+    (set, get) => ({
+      windows: [],
       activeWindowId: null,
-    }));
-  },
+      theme: {
+        wallpaper: WALLPAPERS[0],
+        isDarkMode: true,
+        brightness: 100,
+        volume: 50,
+      },
+      fileSystem: initialFileSystem,
+      isLauncherOpen: false,
+      isLocked: true,
 
-  maximizeWindow: (id) => {
-    set((state) => ({
-      windows: state.windows.map((w) =>
-        w.id === id ? { ...w, isMaximized: !w.isMaximized } : w
-      ),
-    }));
-  },
+      toggleLauncher: () => set((state) => ({ isLauncherOpen: !state.isLauncherOpen })),
+      setLauncherOpen: (isOpen) => set({ isLauncherOpen: isOpen }),
 
-  updateWindowPosition: (id, x, y) => {
-    set((state) => ({
-      windows: state.windows.map((w) =>
-        w.id === id ? { ...w, position: { x, y } } : w
-      ),
-    }));
-  },
+      setLocked: (locked) => set({ isLocked: locked }),
 
-  updateWindowSize: (id, width, height) => {
-    set((state) => ({
-      windows: state.windows.map((w) =>
-        w.id === id ? { ...w, size: { width, height } } : w
-      ),
-    }));
-  },
+      launchApp: (appId) => {
+        const { windows } = get();
+        // Simple ID generation
+        const id = `${appId}-${Date.now()}`;
+        const newWindow: WindowState = {
+          id,
+          appId,
+          title: '', // Title set by app usually
+          position: { x: 100 + windows.length * 30, y: 50 + windows.length * 30 },
+          size: { width: 0, height: 0 }, // Will be set by AppConfig default
+          isMinimized: false,
+          isMaximized: false,
+          zIndex: windows.length + 1,
+        };
 
-  setWallpaper: (url) => {
-    set((state) => ({ theme: { ...state.theme, wallpaper: url } }));
-  },
+        set((state) => ({
+          windows: [...state.windows, newWindow],
+          activeWindowId: id,
+          isLauncherOpen: false, // Close launcher on app launch
+        }));
+      },
 
-  toggleDarkMode: () => {
-    set((state) => ({ theme: { ...state.theme, isDarkMode: !state.theme.isDarkMode } }));
-  },
+      closeWindow: (id) => {
+        set((state) => ({
+          windows: state.windows.filter((w) => w.id !== id),
+          activeWindowId: state.activeWindowId === id ? null : state.activeWindowId,
+        }));
+      },
 
-  setBrightness: (value) => {
-    set((state) => ({ theme: { ...state.theme, brightness: value } }));
-  },
+      focusWindow: (id) => {
+        set((state) => {
+          // Move focused window to top of z-index stack conceptually by reordering or maxing zIndex
+          const maxZ = Math.max(...state.windows.map(w => w.zIndex), 0);
+          const updatedWindows = state.windows.map(w =>
+            w.id === id ? { ...w, zIndex: maxZ + 1 } : w
+          );
+          return { windows: updatedWindows, activeWindowId: id };
+        });
+      },
 
-  setVolume: (value) => {
-    set((state) => ({ theme: { ...state.theme, volume: value } }));
-  },
+      minimizeWindow: (id) => {
+        set((state) => ({
+          windows: state.windows.map((w) =>
+            w.id === id ? { ...w, isMinimized: !w.isMinimized } : w
+          ),
+          activeWindowId: null,
+        }));
+      },
 
-  createFile: (parentId, name, content) => {
-    set((state) => {
-      const id = `file-${Date.now()}-${Math.random()}`;
-      const newFile: FileSystemNode = { id, name, type: 'file', parentId, content };
-      const parent = state.fileSystem[parentId];
+      maximizeWindow: (id) => {
+        set((state) => ({
+          windows: state.windows.map((w) =>
+            w.id === id ? { ...w, isMaximized: !w.isMaximized } : w
+          ),
+        }));
+      },
 
-      if (!parent) return state;
+      updateWindowPosition: (id, x, y) => {
+        set((state) => ({
+          windows: state.windows.map((w) =>
+            w.id === id ? { ...w, position: { x, y } } : w
+          ),
+        }));
+      },
 
-      return {
-        fileSystem: {
-          ...state.fileSystem,
-          [id]: newFile,
-          [parentId]: {
+      updateWindowSize: (id, width, height) => {
+        set((state) => ({
+          windows: state.windows.map((w) =>
+            w.id === id ? { ...w, size: { width, height } } : w
+          ),
+        }));
+      },
+
+      setWallpaper: (url) => {
+        set((state) => ({ theme: { ...state.theme, wallpaper: url } }));
+      },
+
+      toggleDarkMode: () => {
+        set((state) => ({ theme: { ...state.theme, isDarkMode: !state.theme.isDarkMode } }));
+      },
+
+      setBrightness: (value) => {
+        set((state) => ({ theme: { ...state.theme, brightness: value } }));
+      },
+
+      setVolume: (value) => {
+        set((state) => ({ theme: { ...state.theme, volume: value } }));
+      },
+
+      createFile: (parentId, name, content) => {
+        set((state) => {
+          const id = `file-${Date.now()}-${Math.random()}`;
+          const newFile: FileSystemNode = { id, name, type: 'file', parentId, content };
+          const parent = state.fileSystem[parentId];
+
+          if (!parent) return state;
+
+          return {
+            fileSystem: {
+              ...state.fileSystem,
+              [id]: newFile,
+              [parentId]: {
+                ...parent,
+                children: [...(parent.children || []), id]
+              }
+            }
+          };
+        });
+      },
+
+      createFolder: (parentId, name) => {
+        set((state) => {
+          const id = `folder-${Date.now()}-${Math.random()}`;
+          const newFolder: FileSystemNode = { id, name, type: 'folder', parentId, children: [] };
+          const parent = state.fileSystem[parentId];
+
+          if (!parent) return state;
+
+          return {
+            fileSystem: {
+              ...state.fileSystem,
+              [id]: newFolder,
+              [parentId]: {
+                ...parent,
+                children: [...(parent.children || []), id]
+              }
+            }
+          };
+        });
+      },
+
+      deleteNode: (id) => {
+        set((state) => {
+          const node = state.fileSystem[id];
+          if (!node) return state;
+          const parentId = node.parentId;
+          if (!parentId) return state; // Can't delete root
+
+          const parent = state.fileSystem[parentId];
+          const newParent = {
             ...parent,
-            children: [...(parent.children || []), id]
+            children: parent.children?.filter(childId => childId !== id)
+          };
+
+          const newFileSystem = { ...state.fileSystem };
+          delete newFileSystem[id];
+          newFileSystem[parentId] = newParent;
+
+          return { fileSystem: newFileSystem };
+        });
+      },
+
+      renameNode: (id, newName) => {
+        set((state) => ({
+          fileSystem: {
+            ...state.fileSystem,
+            [id]: { ...state.fileSystem[id], name: newName }
           }
-        }
-      };
-    });
-  },
+        }));
+      },
 
-  createFolder: (parentId, name) => {
-    set((state) => {
-      const id = `folder-${Date.now()}-${Math.random()}`;
-      const newFolder: FileSystemNode = { id, name, type: 'folder', parentId, children: [] };
-      const parent = state.fileSystem[parentId];
-
-      if (!parent) return state;
-
-      return {
-        fileSystem: {
-          ...state.fileSystem,
-          [id]: newFolder,
-          [parentId]: {
-            ...parent,
-            children: [...(parent.children || []), id]
+      updateFileContent: (id, content) => {
+        set((state) => ({
+          fileSystem: {
+            ...state.fileSystem,
+            [id]: { ...state.fileSystem[id], content }
           }
-        }
-      };
-    });
-  },
-
-  deleteNode: (id) => {
-    set((state) => {
-      const node = state.fileSystem[id];
-      if (!node) return state;
-      const parentId = node.parentId;
-      if (!parentId) return state; // Can't delete root
-
-      const parent = state.fileSystem[parentId];
-      const newParent = {
-        ...parent,
-        children: parent.children?.filter(childId => childId !== id)
-      };
-
-      const newFileSystem = { ...state.fileSystem };
-      delete newFileSystem[id];
-      newFileSystem[parentId] = newParent;
-
-      return { fileSystem: newFileSystem };
-    });
-  },
-
-  updateFileContent: (id, content) => {
-    set((state) => ({
-      fileSystem: {
-        ...state.fileSystem,
-        [id]: { ...state.fileSystem[id], content }
+        }));
       }
-    }));
-  }
-}));
+    }),
+    {
+      name: 'ether-os-storage',
+      partialize: (state) => ({
+        theme: state.theme,
+        fileSystem: state.fileSystem,
+        windows: state.windows
+      }),
+    }
+  )
+);

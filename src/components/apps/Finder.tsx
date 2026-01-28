@@ -1,19 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useOSStore } from '../../store/osStore';
 import { Folder, FileText, Home, HardDrive, ArrowLeft } from 'lucide-react';
+import type { ContextMenuItem } from '../os/ContextMenu';
+import ContextMenu from '../os/ContextMenu';
 
 interface FinderProps {
   windowId: string;
 }
 
 const Finder: React.FC<FinderProps> = () => {
-  const { fileSystem, theme } = useOSStore();
+  const { fileSystem, theme, renameNode } = useOSStore();
   const [currentPathId, setCurrentPathId] = useState<string>('home');
   const [history, setHistory] = useState<string[]>(['home']);
 
+  // Context Menu State
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
+
+  // Renaming State
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [tempName, setTempName] = useState('');
+  const renameInputRef = useRef<HTMLInputElement>(null);
+
   const currentFolder = fileSystem[currentPathId];
 
+  useEffect(() => {
+    if (renamingId && renameInputRef.current) {
+      renameInputRef.current.focus();
+      renameInputRef.current.select();
+    }
+  }, [renamingId]);
+
   const handleNavigate = (id: string) => {
+    // Don't navigate if renaming
+    if (renamingId) return;
+
     if (fileSystem[id]?.type === 'folder') {
       setHistory([...history, id]);
       setCurrentPathId(id);
@@ -29,8 +49,48 @@ const Finder: React.FC<FinderProps> = () => {
     }
   };
 
+  const handleContextMenu = (e: React.MouseEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent desktop context menu
+
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      items: [
+        {
+          label: 'Rename',
+          action: () => {
+            setRenamingId(id);
+            setTempName(fileSystem[id].name);
+          }
+        },
+        // Future: Delete, Get Info, etc.
+      ]
+    });
+  };
+
+  const handleRenameSave = () => {
+    if (renamingId && tempName.trim()) {
+      renameNode(renamingId, tempName.trim());
+    }
+    setRenamingId(null);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleRenameSave();
+    } else if (e.key === 'Escape') {
+      setRenamingId(null);
+    }
+  };
+
+  // Close context menu on click
+  const handleClick = () => {
+    if (contextMenu) setContextMenu(null);
+  };
+
   return (
-    <div className="flex h-full text-sm">
+    <div className="flex h-full text-sm" onClick={handleClick}>
       {/* Sidebar - Fixed width, shrink-0 prevents it from being squashed */}
       <div className={`
         w-48 flex-shrink-0 flex flex-col space-y-4 p-4 border-r overflow-y-auto
@@ -75,20 +135,39 @@ const Finder: React.FC<FinderProps> = () => {
           <div className="grid grid-cols-[repeat(auto-fill,minmax(90px,1fr))] gap-4">
             {currentFolder?.children?.map((childId) => {
               const node = fileSystem[childId];
+              const isRenaming = renamingId === childId;
+
               return (
                 <div
                   key={childId}
                   onDoubleClick={() => handleNavigate(childId)}
+                  onContextMenu={(e) => handleContextMenu(e, childId)}
                   className={`
                     flex flex-col items-center justify-start p-2 rounded-lg cursor-pointer
                     hover:bg-blue-500/20 active:bg-blue-500/40 transition-colors
-                    aspect-square
+                    aspect-square group
                   `}
                 >
-                  <div className="mb-2 text-blue-400 flex-1 flex items-center justify-center">
+                  <div className="mb-2 text-blue-400 flex-1 flex items-center justify-center pointer-events-none">
                     {node.type === 'folder' ? <Folder size={48} fill="currentColor" fillOpacity={0.2} /> : <FileText size={48} className="text-gray-400" />}
                   </div>
-                  <span className="text-center w-full text-xs truncate px-1">{node.name}</span>
+
+                  {isRenaming ? (
+                    <input
+                      ref={renameInputRef}
+                      type="text"
+                      value={tempName}
+                      onChange={(e) => setTempName(e.target.value)}
+                      onBlur={handleRenameSave}
+                      onKeyDown={handleKeyDown}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-center w-full text-xs bg-white text-black rounded px-1 outline-none border border-blue-500"
+                    />
+                  ) : (
+                    <span className="text-center w-full text-xs truncate px-1 group-hover:text-blue-200 select-none">
+                      {node.name}
+                    </span>
+                  )}
                 </div>
               );
             })}
@@ -101,6 +180,15 @@ const Finder: React.FC<FinderProps> = () => {
           )}
         </div>
       </div>
+
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          items={contextMenu.items}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 };
