@@ -80,15 +80,15 @@ const AppLauncher: React.FC = () => {
                     >
                         <div className={`
                             w-20 h-20 md:w-24 md:h-24 rounded-[22px] flex items-center justify-center shadow-2xl transition-all duration-200
-                            ${typeof app.icon === 'string'
-                                ? 'bg-zinc-200 to-br from-gray-300 to-gray-600 text-white'
+                            ${typeof app.icon !== 'string'
+                                ? 'bg-zinc-200 to-br from-gray-300 to-gray-600 text-black'
                                 : 'bg-transparent'
                             }
                         `}>
                             {typeof app.icon === 'string' ? (
                                 <img src={app.icon} alt={app.name} className="w-full h-full object-contain drop-shadow-md" />
                             ) : (
-                                <app.icon size={48} />
+                                React.createElement(app.icon, { size: 48 })
                             )}
                         </div>
                         <span className={`text-sm font-medium tracking-wide shadow-black drop-shadow-md ${theme.isDarkMode ? 'text-white' : 'text-white'}`}>
