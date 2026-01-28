@@ -10,6 +10,8 @@ import CameraApp from './components/apps/Camera';
 import PixelPaintApp from './components/apps/PixelPaint';
 import Game2048App from './components/apps/Game2048';
 import TaskManagerApp from './components/apps/TaskManager';
+import CalendarApp from './components/apps/Calendar';
+import ClockApp from './components/apps/Clock';
 
 import { APP_METADATA } from './apps.config';
 
@@ -24,6 +26,8 @@ const APP_COMPONENTS: Record<AppID, React.ComponentType<any>> = {
   pixelpaint: PixelPaintApp,
   game2048: Game2048App,
   taskmanager: TaskManagerApp,
+  calendar: CalendarApp,
+  clock: ClockApp,
 };
 
 // Merge metadata with components

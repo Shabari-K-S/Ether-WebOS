@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint' | 'game2048' | 'taskmanager';
+export type AppID = 'finder' | 'terminal' | 'settings' | 'calculator' | 'browser' | 'notes' | 'camera' | 'pixelpaint' | 'game2048' | 'taskmanager' | 'calendar' | 'clock';
 
 export interface Position {
   x: number;
@@ -21,6 +21,7 @@ export interface WindowState {
   isMinimized: boolean;
   isMaximized: boolean;
   zIndex: number;
+  launchArgs?: any;
 }
 
 export interface FileSystemNode {
@@ -35,6 +36,7 @@ export interface FileSystemNode {
 export interface AppProps {
   windowId: string;
   onWindowDrag?: (e: React.MouseEvent) => void;
+  launchArgs?: any;
 }
 
 export interface AppConfig {

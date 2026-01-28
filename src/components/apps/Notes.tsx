@@ -3,7 +3,7 @@ import { useOSStore } from '../../store/osStore';
 import type { AppProps } from '../../types';
 import { Plus, Trash2, FileText } from 'lucide-react';
 
-const Notes: React.FC<AppProps> = ({ onWindowDrag }) => {
+const Notes: React.FC<AppProps> = ({ onWindowDrag, launchArgs }) => {
     const { fileSystem, createFile, updateFileContent, deleteNode, theme } = useOSStore();
     const [activeNoteId, setActiveNoteId] = useState<string | null>(null);
 
@@ -13,12 +13,14 @@ const Notes: React.FC<AppProps> = ({ onWindowDrag }) => {
         ?.map(id => fileSystem[id])
         .filter(node => node.type === 'file') || [];
 
-    // Auto-select first note if none selected
+    // Auto-select note from launchArgs or first note
     useEffect(() => {
-        if (!activeNoteId && notes.length > 0) {
+        if (launchArgs?.fileId) {
+            setActiveNoteId(launchArgs.fileId);
+        } else if (!activeNoteId && notes.length > 0) {
             setActiveNoteId(notes[0].id);
         }
-    }, [notes.length, activeNoteId]);
+    }, [launchArgs?.fileId, notes.length, activeNoteId]);
 
     const handleCreateNote = () => {
         createFile('docs', `Note ${notes.length + 1}.txt`, '');

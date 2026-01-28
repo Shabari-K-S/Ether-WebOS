@@ -147,78 +147,80 @@ const Game2048: React.FC<AppProps> = ({ onWindowDrag }) => {
     };
 
     return (
-        <div className={`h-full flex flex-col p-6 select-none ${theme.isDarkMode ? 'bg-[#2a2a2a] text-[#f9f6f2]' : 'bg-[#faf8ef] text-[#776e65]'}`}>
-            {/* Header */}
-            <div className="flex justify-between items-center mb-6" onMouseDown={onWindowDrag}>
-                <div>
-                    <h1 className="text-5xl font-bold mb-2">2048</h1>
-                    <p className="text-sm opacity-70">Join the numbers to get to 2048!</p>
-                </div>
-                <div className="flex space-x-2">
-                    <div className="flex flex-col items-center bg-[#bbada0] p-2 rounded min-w-[70px] text-white">
-                        <span className="text-xs font-bold uppercase text-[#eee4da]">Score</span>
-                        <span className="text-xl font-bold">{score}</span>
-                    </div>
-                    <div className="flex flex-col items-center bg-[#bbada0] p-2 rounded min-w-[70px] text-white">
-                        <span className="text-xs font-bold uppercase text-[#eee4da]">Best</span>
-                        <span className="text-xl font-bold">{bestScore}</span>
-                    </div>
-                </div>
-            </div>
+        <div className={`h-full flex flex-col p-8 select-none ${theme.isDarkMode ? 'bg-[#2a2a2a] text-[#f9f6f2]' : 'bg-[#faf8ef] text-[#776e65]'}`}>
+            <div className="max-w-md w-full mx-auto flex flex-col h-full">
 
-            <div className="flex justify-between items-center mb-6">
-                <button
-                    onClick={initGame}
-                    className="flex items-center gap-2 px-4 py-2 bg-[#8f7a66] text-white rounded font-bold hover:bg-[#8f7a66]/90 transition-colors"
-                >
-                    <RotateCcw size={16} /> New Game
-                </button>
-                <span className="text-xs font-bold opacity-50">Use Arrow Keys</span>
-            </div>
-
-            {/* Game Board */}
-            <div className="flex-1 flex items-center justify-center">
-                <div className="relative bg-[#bbada0] p-3 rounded-lg w-full max-w-[400px] aspect-square">
-                    {/* Grid Background */}
-                    <div className="grid grid-cols-4 gap-3 h-full">
-                        {Array(16).fill(0).map((_, i) => (
-                            <div key={i} className="bg-[#cdc1b4] rounded w-full h-full" />
-                        ))}
+                {/* Header */}
+                <div className="flex justify-between items-start mb-8" onMouseDown={onWindowDrag}>
+                    <div>
+                        <h1 className="text-6xl font-bold leading-none mb-2">2048</h1>
+                        <p className="text-base opacity-70 font-medium">Join the numbers!</p>
                     </div>
-
-                    {/* Tiles Layer */}
-                    <div className="absolute inset-3 grid grid-cols-4 gap-3 pointer-events-none">
-                        {board.map((row, r) => (
-                            row.map((val, c) => (
-                                <div key={`${r}-${c}`} className="w-full h-full flex items-center justify-center">
-                                    {val > 0 && (
-                                        <div
-                                            className={`
-                        w-full h-full rounded flex items-center justify-center font-bold text-3xl
-                        animate-in zoom-in duration-200
-                        ${getTileColor(val)}
-                      `}
-                                        >
-                                            {val}
-                                        </div>
-                                    )}
-                                </div>
-                            ))
-                        ))}
-                    </div>
-
-                    {/* Game Over Overlay */}
-                    {gameOver && (
-                        <div className="absolute inset-0 bg-[#eee4da]/70 flex flex-col items-center justify-center rounded-lg animate-in fade-in z-20">
-                            <h2 className="text-4xl font-bold text-[#776e65] mb-4">Game Over!</h2>
-                            <button
-                                onClick={initGame}
-                                className="px-6 py-3 bg-[#8f7a66] text-white rounded font-bold hover:scale-105 transition-transform shadow-lg"
-                            >
-                                Try Again
-                            </button>
+                    <div className="flex flex-col items-end gap-3">
+                        <div className="flex space-x-2">
+                            <div className="flex flex-col items-center bg-[#bbada0] px-4 py-1.5 rounded-md min-w-[70px] text-white">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#eee4da]">Score</span>
+                                <span className="text-xl font-bold leading-tight">{score}</span>
+                            </div>
+                            <div className="flex flex-col items-center bg-[#bbada0] px-4 py-1.5 rounded-md min-w-[70px] text-white">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#eee4da]">Best</span>
+                                <span className="text-xl font-bold leading-tight">{bestScore}</span>
+                            </div>
                         </div>
-                    )}
+                        <button
+                            onClick={initGame}
+                            className="flex items-center gap-2 px-4 py-2 bg-[#8f7a66] text-white rounded font-bold text-sm hover:bg-[#8f7a66]/90 transition-colors shadow-sm"
+                        >
+                            <RotateCcw size={14} /> New Game
+                        </button>
+                    </div>
+                </div>
+
+                {/* Game Board */}
+                <div className="flex-1 flex flex-col items-center justify-start relative">
+                    <div className="relative bg-[#bbada0] p-4 rounded-lg w-full aspect-square shadow-xl">
+                        {/* Grid Background */}
+                        <div className="grid grid-cols-4 gap-4 h-full">
+                            {Array(16).fill(0).map((_, i) => (
+                                <div key={i} className="bg-[#cdc1b4] rounded w-full h-full" />
+                            ))}
+                        </div>
+
+                        {/* Tiles Layer */}
+                        <div className="absolute inset-4 grid grid-cols-4 gap-4 pointer-events-none">
+                            {board.map((row, r) => (
+                                row.map((val, c) => (
+                                    <div key={`${r}-${c}`} className="w-full h-full flex items-center justify-center relative">
+                                        {val > 0 && (
+                                            <div
+                                                className={`
+                                                    absolute inset-0 rounded flex items-center justify-center font-bold text-4xl
+                                                    animate-in zoom-in duration-200 shadow-sm
+                                                    ${getTileColor(val)}
+                                                `}
+                                            >
+                                                {val}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ))}
+                        </div>
+
+                        {/* Game Over Overlay */}
+                        {gameOver && (
+                            <div className="absolute inset-0 bg-[#eee4da]/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-lg animate-in fade-in z-20">
+                                <h2 className="text-5xl font-bold text-[#776e65] mb-6">Game Over!</h2>
+                                <button
+                                    onClick={initGame}
+                                    className="px-6 py-3 bg-[#8f7a66] text-white rounded font-bold hover:scale-105 transition-transform shadow-lg text-lg"
+                                >
+                                    Try Again
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <span className="text-xs font-bold opacity-40 mt-6 uppercase tracking-widest text-center w-full">Use Arrow Keys to Play</span>
                 </div>
             </div>
         </div>

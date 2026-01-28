@@ -7,6 +7,7 @@ import AppLauncher from './components/os/AppLauncher';
 import type { ContextMenuItem } from './components/os/ContextMenu';
 import ContextMenu from './components/os/ContextMenu';
 import { WALLPAPERS } from './wallpapers';
+import ToastContainer from './components/os/Toast';
 
 import LockScreen from './components/os/LockScreen';
 
@@ -78,6 +79,7 @@ function App() {
 
       <AppLauncher />
       <Dock />
+      <ToastContainer />
 
       {contextMenu && (
         <ContextMenu

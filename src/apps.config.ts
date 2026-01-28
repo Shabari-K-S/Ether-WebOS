@@ -8,6 +8,8 @@ import calculatorIcon from './assets/calculator.webp';
 import game2048Icon from './assets/2048game.webp';
 import cameraIcon from './assets/camera.webp';
 import { Activity } from 'lucide-react';
+import CalendarIcon from './assets/calendar.webp';
+import ClockIcon from './assets/clock.webp';
 
 export interface AppMetadata {
     id: AppID;
@@ -63,6 +65,20 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         defaultWidth: 500,
         defaultHeight: 650,
         hideTitleBar: true,
+    },
+    calendar: {
+        id: 'calendar',
+        name: 'Calendar',
+        icon: CalendarIcon,
+        defaultWidth: 800,
+        defaultHeight: 600,
+    },
+    clock: {
+        id: 'clock',
+        name: 'Clock',
+        icon: ClockIcon,
+        defaultWidth: 500,
+        defaultHeight: 600,
     },
     terminal: {
         id: 'terminal',

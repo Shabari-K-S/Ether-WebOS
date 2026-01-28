@@ -9,7 +9,7 @@ interface FinderProps {
 }
 
 const Finder: React.FC<FinderProps> = () => {
-  const { fileSystem, theme, renameNode } = useOSStore();
+  const { fileSystem, theme, renameNode, launchApp } = useOSStore();
   const [currentPathId, setCurrentPathId] = useState<string>('home');
   const [history, setHistory] = useState<string[]>(['home']);
 
@@ -37,6 +37,14 @@ const Finder: React.FC<FinderProps> = () => {
     if (fileSystem[id]?.type === 'folder') {
       setHistory([...history, id]);
       setCurrentPathId(id);
+    } else if (fileSystem[id]?.type === 'file') {
+      const node = fileSystem[id];
+      if (node.name.endsWith('.txt')) {
+        launchApp('notes', { fileId: id });
+      } else {
+        // Default handling for other files (maybe future preview)
+        alert(`Cannot open ${node.name} yet.`);
+      }
     }
   };
 

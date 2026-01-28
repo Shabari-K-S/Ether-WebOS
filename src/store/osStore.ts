@@ -3,6 +3,14 @@ import { persist } from 'zustand/middleware';
 import type { AppID, WindowState, ThemeConfig, FileSystemNode } from '../types';
 import { WALLPAPERS } from '../wallpapers';
 
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type?: 'info' | 'success' | 'warning' | 'error';
+  timestamp: number;
+}
+
 interface OSState {
   windows: WindowState[];
   activeWindowId: string | null;
@@ -10,10 +18,11 @@ interface OSState {
   fileSystem: Record<string, FileSystemNode>;
   isLauncherOpen: boolean;
   isLocked: boolean;
+  notifications: Notification[];
 
   // Actions
   setLocked: (locked: boolean) => void;
-  launchApp: (appId: AppID) => void;
+  launchApp: (appId: AppID, launchArgs?: any) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
   maximizeWindow: (id: string) => void;
@@ -26,6 +35,10 @@ interface OSState {
   setVolume: (value: number) => void;
   toggleLauncher: () => void;
   setLauncherOpen: (isOpen: boolean) => void;
+
+  // Notification Actions
+  addNotification: (title: string, message: string, type?: Notification['type']) => void;
+  removeNotification: (id: string) => void;
 
   // File System Actions
   createFile: (parentId: string, name: string, content: string) => void;
@@ -57,31 +70,55 @@ export const useOSStore = create<OSState>()(
       fileSystem: initialFileSystem,
       isLauncherOpen: false,
       isLocked: true,
+      notifications: [],
 
       toggleLauncher: () => set((state) => ({ isLauncherOpen: !state.isLauncherOpen })),
       setLauncherOpen: (isOpen) => set({ isLauncherOpen: isOpen }),
 
       setLocked: (locked) => set({ isLocked: locked }),
 
-      launchApp: (appId) => {
+      addNotification: (title, message, type = 'info') => {
+        const id = Math.random().toString(36).substring(7);
+        const newNotification: Notification = { id, title, message, type, timestamp: Date.now() };
+        set((state) => ({ notifications: [newNotification, ...state.notifications] }));
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          get().removeNotification(id);
+        }, 5000);
+      },
+
+      removeNotification: (id) => {
+        set((state) => ({ notifications: state.notifications.filter(n => n.id !== id) }));
+      },
+
+      launchApp: (appId, launchArgs) => {
         const { windows } = get();
-        // Simple ID generation
+
+        // Check if app is already open (single instance check, optional but good for notes maybe?)
+        // For now, allow multiple instances unless it's a specific app policy.
+        // Actually for Notes, if we want to open a file, we might want to use existing window or open new.
+        // Let's standardise: always open new window? Or focus existing if logic dictates.
+
+        // Better: If launchArgs provided, maybe we want to pass it to NEW window.
+
         const id = `${appId}-${Date.now()}`;
         const newWindow: WindowState = {
           id,
           appId,
-          title: '', // Title set by app usually
+          title: '',
           position: { x: 100 + windows.length * 30, y: 50 + windows.length * 30 },
-          size: { width: 0, height: 0 }, // Will be set by AppConfig default
+          size: { width: 0, height: 0 },
           isMinimized: false,
           isMaximized: false,
           zIndex: windows.length + 1,
+          launchArgs: launchArgs, // Store args here
         };
 
         set((state) => ({
           windows: [...state.windows, newWindow],
           activeWindowId: id,
-          isLauncherOpen: false, // Close launcher on app launch
+          isLauncherOpen: false,
         }));
       },
 
@@ -94,7 +131,6 @@ export const useOSStore = create<OSState>()(
 
       focusWindow: (id) => {
         set((state) => {
-          // Move focused window to top of z-index stack conceptually by reordering or maxing zIndex
           const maxZ = Math.max(...state.windows.map(w => w.zIndex), 0);
           const updatedWindows = state.windows.map(w =>
             w.id === id ? { ...w, zIndex: maxZ + 1 } : w
@@ -199,7 +235,7 @@ export const useOSStore = create<OSState>()(
           const node = state.fileSystem[id];
           if (!node) return state;
           const parentId = node.parentId;
-          if (!parentId) return state; // Can't delete root
+          if (!parentId) return state;
 
           const parent = state.fileSystem[parentId];
           const newParent = {
@@ -238,7 +274,8 @@ export const useOSStore = create<OSState>()(
       partialize: (state) => ({
         theme: state.theme,
         fileSystem: state.fileSystem,
-        windows: state.windows
+        windows: state.windows,
+        isLocked: state.isLocked
       }),
     }
   )
