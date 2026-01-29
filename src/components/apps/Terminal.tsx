@@ -42,6 +42,55 @@ const MatrixEffect = () => {
   return <canvas ref={canvasRef} className="absolute inset-0 z-0 opacity-40 pointer-events-none" />;
 };
 
+const parseArgs = (input: string): string[] => {
+  const args: string[] = [];
+  let current = '';
+  let inDoubleQuote = false;
+  let inSingleQuote = false;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i++) {
+    const char = input[i];
+
+    if (escaped) {
+      current += char;
+      escaped = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"' && !inSingleQuote) {
+      inDoubleQuote = !inDoubleQuote;
+      continue;
+    }
+
+    if (char === "'" && !inDoubleQuote) {
+      inSingleQuote = !inSingleQuote;
+      continue;
+    }
+
+    if (/\s/.test(char) && !inDoubleQuote && !inSingleQuote) {
+      if (current) {
+        args.push(current);
+        current = '';
+      }
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (current) {
+    args.push(current);
+  }
+
+  return args;
+};
+
 const TerminalApp: React.FC = () => {
   const { fileSystem, createFolder, createFile, deleteNode, launchApp } = useOSStore();
   const [history, setHistory] = useState<string[]>(['Welcome to Ether Terminal. Type "help" for commands.']);
@@ -85,8 +134,9 @@ const TerminalApp: React.FC = () => {
     if (!input.trim()) return;
 
     const rawCmd = input.trim();
-    const args = rawCmd.split(/\s+/);
-    const cmd = args[0].toLowerCase();
+    const args = parseArgs(rawCmd);
+    const cmd = args[0]?.toLowerCase();
+    if (!cmd) return;
 
     const newHistory = [...history, `${displayPath} $ ${rawCmd}`];
 

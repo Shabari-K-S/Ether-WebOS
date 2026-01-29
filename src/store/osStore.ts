@@ -50,10 +50,9 @@ interface OSState {
 
 const initialFileSystem: Record<string, FileSystemNode> = {
   'root': { id: 'root', name: 'Macintosh HD', type: 'folder', parentId: null, children: ['home'] },
-  'home': { id: 'home', name: 'User', type: 'folder', parentId: 'root', children: ['docs', 'welcome'] },
-  'docs': { id: 'docs', name: 'Documents', type: 'folder', parentId: 'home', children: ['notes-sample'] },
-  'welcome': { id: 'welcome', name: 'welcome.txt', type: 'file', parentId: 'home', content: 'Welcome to Ether OS! This is a demo running in React.' },
-  'notes-sample': { id: 'notes-sample', name: 'Ideas.txt', type: 'file', parentId: 'docs', content: '- Build a cool OS\n- Learn Gemini API\n- Coffee break' },
+  'home': { id: 'home', name: 'User', type: 'folder', parentId: 'root', children: ['docs'] },
+  'docs': { id: 'docs', name: 'Documents', type: 'folder', parentId: 'home', children: ['welcome'] },
+  'welcome': { id: 'welcome', name: 'welcome.txt', type: 'file', parentId: 'docs', content: 'Welcome to Ether OS! This is a demo running in React.' },
 };
 
 export const useOSStore = create<OSState>()(
@@ -274,6 +273,7 @@ export const useOSStore = create<OSState>()(
     }),
     {
       name: 'ether-os-storage',
+      version: 1,
       partialize: (state) => ({
         theme: state.theme,
         fileSystem: state.fileSystem,
