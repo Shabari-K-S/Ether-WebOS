@@ -57,8 +57,13 @@ const Dock: React.FC = () => {
     )
   };
 
+  const hasMaximizedWindow = windows.some(w => w.isMaximized && !w.isMinimized);
+
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[70]">
+    <div className={`
+      fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[70] transition-all duration-500 ease-in-out
+      ${hasMaximizedWindow ? 'translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
+    `}>
       <div
         ref={dockRef}
         onMouseMove={handleMouseMove}

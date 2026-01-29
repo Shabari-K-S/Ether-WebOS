@@ -84,7 +84,7 @@ const BootSequence: React.FC = () => {
 
     if (isPowerDown || (isPoweredOff && !isRestarting)) {
         return (
-            <div className="fixed inset-0 z-[110] bg-black flex flex-col items-center justify-center text-zinc-500 font-mono text-center p-8">
+            <div className="fixed inset-0 z-[20000] bg-black flex flex-col items-center justify-center text-zinc-500 font-mono text-center p-8">
                 <div className="space-y-6 animate-pulse">
                     <p className="text-xl">It is now safe to turn off your computer.</p>
                     <div
@@ -104,7 +104,7 @@ const BootSequence: React.FC = () => {
     }
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black text-white font-mono p-4 overflow-hidden flex flex-col justify-end">
+        <div className="fixed inset-0 z-[20000] bg-black text-white font-mono p-4 overflow-hidden flex flex-col justify-end">
             <div className="space-y-1">
                 {logs.map((log, i) => (
                     <div key={i} className="text-sm">

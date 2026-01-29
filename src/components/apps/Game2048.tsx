@@ -147,11 +147,13 @@ const Game2048: React.FC<AppProps> = ({ onWindowDrag }) => {
     };
 
     return (
-        <div className={`h-full flex flex-col p-8 select-none ${theme.isDarkMode ? 'bg-[#2a2a2a] text-[#f9f6f2]' : 'bg-[#faf8ef] text-[#776e65]'}`}>
-            <div className="max-w-md w-full mx-auto flex flex-col h-full">
-
+        <div
+            className={`h-full flex flex-col p-8 select-none ${theme.isDarkMode ? 'bg-[#2a2a2a] text-[#f9f6f2]' : 'bg-[#faf8ef] text-[#776e65]'}`}
+            onMouseDown={onWindowDrag}
+        >
+            <div className="max-w-md w-full mx-auto flex flex-col h-full pointer-events-none">
                 {/* Header */}
-                <div className="flex justify-between items-start mb-8" onMouseDown={onWindowDrag}>
+                <div className="flex justify-between items-start mb-8 pointer-events-auto">
                     <div>
                         <h1 className="text-6xl font-bold leading-none mb-2">2048</h1>
                         <p className="text-base opacity-70 font-medium">Join the numbers!</p>
@@ -177,7 +179,7 @@ const Game2048: React.FC<AppProps> = ({ onWindowDrag }) => {
                 </div>
 
                 {/* Game Board */}
-                <div className="flex-1 flex flex-col items-center justify-start relative">
+                <div className="flex-1 flex flex-col items-center justify-start relative pointer-events-auto">
                     <div className="relative bg-[#bbada0] p-4 rounded-lg w-full aspect-square shadow-xl">
                         {/* Grid Background */}
                         <div className="grid grid-cols-4 gap-4 h-full">
