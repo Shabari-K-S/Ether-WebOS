@@ -10,9 +10,10 @@ import { WALLPAPERS } from './wallpapers';
 import ToastContainer from './components/os/Toast';
 
 import LockScreen from './components/os/LockScreen';
+import BootSequence from './components/os/BootSequence';
 
 function App() {
-  const { theme, windows, setWallpaper, createFolder, isLocked } = useOSStore();
+  const { theme, windows, setWallpaper, createFolder, isLocked, isRestarting, isShuttingDown, isPoweredOff } = useOSStore();
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; items: ContextMenuItem[] } | null>(null);
 
   const handleContextMenu = useCallback((e: React.MouseEvent) => {
@@ -60,6 +61,7 @@ function App() {
       <div className={`absolute inset-0 pointer-events-none transition-colors duration-500 ${theme.isDarkMode ? 'bg-black/40' : 'bg-black/10'}`} />
 
       {isLocked && <LockScreen />}
+      {(isRestarting || isShuttingDown || isPoweredOff) && <BootSequence />}
 
       {/* OS UI Layer */}
       <MenuBar />

@@ -5,7 +5,7 @@ import { APP_METADATA } from '../../apps.config';
 
 const MenuBar: React.FC = () => {
   const [date, setDate] = useState(new Date());
-  const { theme, windows, activeWindowId, setLocked, toggleDarkMode, setBrightness, setVolume, launchApp } = useOSStore();
+  const { theme, windows, activeWindowId, setLocked, toggleDarkMode, setBrightness, setVolume, launchApp, setIsRestarting, setIsShuttingDown } = useOSStore();
 
   const [isAppleMenuOpen, setIsAppleMenuOpen] = useState(false);
   const [isControlCenterOpen, setIsControlCenterOpen] = useState(false);
@@ -79,7 +79,7 @@ const MenuBar: React.FC = () => {
                 <span>About This Ether</span>
               </button>
               <div className={`h-px my-1 mx-2 ${theme.isDarkMode ? 'bg-white/10' : 'bg-black/10'}`} />
-              <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white text-left text-sm transition-colors" onClick={() => window.location.reload()}>
+              <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white text-left text-sm transition-colors" onClick={() => { setIsRestarting(true); setIsAppleMenuOpen(false); }}>
                 <RotateCcw size={14} />
                 <span>Restart...</span>
               </button>
@@ -87,7 +87,7 @@ const MenuBar: React.FC = () => {
                 <Lock size={14} />
                 <span>Lock Screen</span>
               </button>
-              <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white text-left text-sm transition-colors">
+              <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg hover:bg-blue-500 hover:text-white text-left text-sm transition-colors" onClick={() => { setIsShuttingDown(true); setIsAppleMenuOpen(false); }}>
                 <Power size={14} />
                 <span>Shut Down...</span>
               </button>

@@ -54,6 +54,12 @@ interface OSState {
   renameLauncherFolder: (folderId: string, newName: string) => void;
   moveLauncherItem: (activeId: string, overId: string) => void;
   deleteLauncherFolder: (folderId: string) => void;
+  isShuttingDown: boolean;
+  isRestarting: boolean;
+  isPoweredOff: boolean;
+  setIsShuttingDown: (val: boolean) => void;
+  setIsRestarting: (val: boolean) => void;
+  setIsPoweredOff: (val: boolean) => void;
   launcherItems: LauncherItem[];
 }
 
@@ -83,6 +89,9 @@ export const useOSStore = create<OSState>()(
       launcherItems: initialLauncherItems,
       isLauncherOpen: false,
       isLocked: true,
+      isShuttingDown: false,
+      isRestarting: false,
+      isPoweredOff: true,
       notifications: [],
 
       toggleLauncher: () => set((state) => ({ isLauncherOpen: !state.isLauncherOpen })),
@@ -357,7 +366,11 @@ export const useOSStore = create<OSState>()(
             ]
           };
         });
-      }
+      },
+
+      setIsShuttingDown: (val) => set({ isShuttingDown: val }),
+      setIsRestarting: (val) => set({ isRestarting: val }),
+      setIsPoweredOff: (val) => set({ isPoweredOff: val }),
     }),
     {
       name: 'ether-os-storage',
