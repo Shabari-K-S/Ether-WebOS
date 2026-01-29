@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { AppID, WindowState, ThemeConfig, FileSystemNode } from '../types';
+import type { AppID, WindowState, ThemeConfig, FileSystemNode, LauncherItem, LauncherFolder } from '../types';
+import { APP_METADATA } from '../apps.config';
 import { WALLPAPERS } from '../wallpapers';
 
 export interface Notification {
@@ -46,7 +47,19 @@ interface OSState {
   deleteNode: (id: string) => void;
   renameNode: (id: string, newName: string) => void;
   updateFileContent: (id: string, content: string) => void;
+  // Launcher Actions
+  createLauncherFolder: (name: string) => void;
+  addAppToLauncherFolder: (folderId: string, appId: AppID) => void;
+  removeAppFromLauncherFolder: (folderId: string, appId: AppID) => void;
+  renameLauncherFolder: (folderId: string, newName: string) => void;
+  moveLauncherItem: (activeId: string, overId: string) => void;
+  deleteLauncherFolder: (folderId: string) => void;
+  launcherItems: LauncherItem[];
 }
+
+const initialLauncherItems: LauncherItem[] = Object.keys(APP_METADATA)
+  .filter(id => !APP_METADATA[id as AppID].hideFromLauncher)
+  .map(id => ({ type: 'app', id: id as AppID }));
 
 const initialFileSystem: Record<string, FileSystemNode> = {
   'root': { id: 'root', name: 'Macintosh HD', type: 'folder', parentId: null, children: ['home'] },
@@ -67,6 +80,7 @@ export const useOSStore = create<OSState>()(
         volume: 50,
       },
       fileSystem: initialFileSystem,
+      launcherItems: initialLauncherItems,
       isLauncherOpen: false,
       isLocked: true,
       notifications: [],
@@ -269,16 +283,91 @@ export const useOSStore = create<OSState>()(
             [id]: { ...state.fileSystem[id], content }
           }
         }));
+      },
+
+      createLauncherFolder: (name) => {
+        set((state) => {
+          const id = `folder-${Date.now()}`;
+          const newFolder: LauncherItem = { type: 'folder', id, name, appIds: [] };
+          return { launcherItems: [newFolder, ...state.launcherItems] };
+        });
+      },
+
+      addAppToLauncherFolder: (folderId, appId) => {
+        set((state) => ({
+          launcherItems: state.launcherItems
+            .map(item => {
+              if (item.type === 'folder' && item.id === folderId) {
+                return { ...item, appIds: [...new Set([...item.appIds, appId])] };
+              }
+              return item;
+            })
+            .filter(item => !(item.type === 'app' && item.id === appId))
+        }));
+      },
+
+      removeAppFromLauncherFolder: (folderId, appId) => {
+        set((state) => {
+          const folder = state.launcherItems.find(i => i.type === 'folder' && i.id === folderId) as LauncherFolder | undefined;
+          if (!folder) return state;
+
+          const newFolder = { ...folder, appIds: folder.appIds.filter(id => id !== appId) };
+          const newApp: LauncherItem = { type: 'app', id: appId };
+
+          return {
+            launcherItems: [
+              ...state.launcherItems.map(item => item.id === folderId ? newFolder : item),
+              newApp
+            ]
+          };
+        });
+      },
+
+      renameLauncherFolder: (folderId, newName) => {
+        set((state) => ({
+          launcherItems: state.launcherItems.map(item =>
+            (item.type === 'folder' && item.id === folderId) ? { ...item, name: newName } : item
+          )
+        }));
+      },
+
+      moveLauncherItem: (activeId, overId) => {
+        set((state) => {
+          const oldIndex = state.launcherItems.findIndex(i => i.id === activeId);
+          const newIndex = state.launcherItems.findIndex(i => i.id === overId);
+          if (oldIndex === -1 || newIndex === -1) return state;
+
+          const newItems = [...state.launcherItems];
+          const [removed] = newItems.splice(oldIndex, 1);
+          newItems.splice(newIndex, 0, removed);
+          return { launcherItems: newItems };
+        });
+      },
+
+      deleteLauncherFolder: (folderId) => {
+        set((state) => {
+          const folder = state.launcherItems.find(i => i.type === 'folder' && i.id === folderId) as LauncherFolder | undefined;
+          if (!folder) return state;
+
+          const contents: LauncherItem[] = folder.appIds.map(id => ({ type: 'app', id }));
+          return {
+            launcherItems: [
+              ...state.launcherItems.filter(item => item.id !== folderId),
+              ...contents
+            ]
+          };
+        });
       }
     }),
     {
       name: 'ether-os-storage',
-      version: 1,
+      version: 2,
       partialize: (state) => ({
         theme: state.theme,
         fileSystem: state.fileSystem,
         windows: state.windows,
-        isLocked: state.isLocked
+        isLocked: state.isLocked,
+        launcherItems: state.launcherItems
       }),
     }
   )

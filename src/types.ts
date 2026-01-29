@@ -58,3 +58,15 @@ export interface ThemeConfig {
   brightness: number;
   volume: number;
 }
+
+export interface LauncherFolder {
+  type: 'folder';
+  id: string;
+  name: string;
+  appIds: AppID[];
+}
+
+export type LauncherItem = {
+  type: 'app';
+  id: AppID;
+} | LauncherFolder;

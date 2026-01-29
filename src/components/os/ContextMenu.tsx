@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useOSStore } from '../../store/osStore';
 
 export interface ContextMenuItem {
-    label: string;
+    label?: string;
     action?: () => void;
     disabled?: boolean;
     danger?: boolean;
