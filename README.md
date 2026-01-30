@@ -1,73 +1,69 @@
-# React + TypeScript + Vite
+# Ether OS (Ether Web OS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A highly interactive, web-based operating system simulator built with React, TypeScript, and Vite. Ether OS replicates a premium desktop experience right in your browser, featuring a functional file system, window management, and a suite of productivity and entertainment applications.
 
-Currently, two official plugins are available:
+## 🌟 Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Desktop Experience**: Fully functional Dock, Menu Bar, and Window Manager.
+- **File System**: Simulated file system with support for creating, editing, renaming, and deleting files and folders.
+- **Window Management**: Drag, resize, minimize, maximize, and close windows with smooth animations.
+- **Theme Support**: Includes Dark Mode and dynamic wallpapers.
+- **Search**: Integrated Spotlight-like search functionality.
 
-## React Compiler
+## 🚀 Included Applications
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Productivity & Tools
+- **VS Code**: A feature-rich code editor simulator with syntax highlighting, sidebar exploration, tabbed editing, and an integrated terminal.
+- **Terminal**: A fully interactive terminal supporting commands like `ls`, `cd`, `mkdir`, `touch`, `rm`, `whoami`, and more.
+- **Browser**: A functional web browser simulator.
+- **Finder**: File explorer to navigate your virtual file system.
+- **Notes**: A simple markdown-friendly note-taking app.
+- **Calculator**: Standard calculator for quick computations.
+- **Calendar**: Interactive calendar application.
+- **Clock**: World clock and time display.
+- **Task Manager**: Monitor open applications and system state.
+- **Settings**: Configure system preferences, wallpapers, and themes.
+- **About**: System information and credits.
 
-## Expanding the ESLint configuration
+### Creativity & Media
+- **Pixel Paint**: A retro-style pixel art creation tool.
+- **Camera**: Virtual camera application.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Games
+- **Minesweeper**: Classic minesweeper game with custom difficulty levels.
+- **Snake**: Retro snake game.
+- **2048**: Puzzle game to reach the 2048 tile.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- **Frontend**: React, TypeScript, Vite
+- **Styling**: Tailwind CSS, Vanilla CSS
+- **Icons**: Lucide React
+- **Editor**: Monaco Editor (for VS Code)
+- **State Management**: Custom React Hooks & Context / Stores
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 📦 Getting Started
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/Shabari-K-S/Ether-WebOS.git
+    cd Ether-WebOS
+    ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    ```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+3.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+
+4.  **Open in your browser:**
+    Visit `http://localhost:5173` to experience Ether OS.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
