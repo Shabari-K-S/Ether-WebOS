@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useOSStore } from '../../store/osStore';
 import { APPS } from '../../constants';
 import { Terminal } from 'lucide-react';
+import { cn } from '../../lib/utils';
 
 const parseArgs = (input: string): string[] => {
   const args: string[] = [];
@@ -58,14 +59,35 @@ interface TerminalLine {
   path?: string;
 }
 
-const TerminalApp: React.FC = () => {
+export interface TerminalCoreProps {
+  className?: string;
+  initialCwd?: string;
+  cwd?: string;
+  onCd?: (path: string) => void;
+  showWatermark?: boolean;
+}
+
+export const TerminalCore: React.FC<TerminalCoreProps> = ({
+  className,
+  initialCwd = 'home',
+  cwd: controlledCwd,
+  onCd,
+  showWatermark = true
+}) => {
   const { fileSystem, createFolder, createFile, deleteNode, launchApp } = useOSStore();
   const [history, setHistory] = useState<TerminalLine[]>([
-    { type: 'output', content: 'Welcome to Ether Terminal. Type "help" for commands.' }
+    { type: 'output', content: 'Ether Terminal. Type "help" for commands.' }
   ]);
   const [input, setInput] = useState('');
-  const [currentDirId, setCurrentDirId] = useState('home');
+  const [internalCwd, setInternalCwd] = useState(initialCwd);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const currentDirId = controlledCwd !== undefined ? controlledCwd : internalCwd;
+
+  const handleCd = (newPath: string) => {
+    if (onCd) onCd(newPath);
+    if (controlledCwd === undefined) setInternalCwd(newPath);
+  };
 
   const getPathString = (id: string, full: boolean = false): string => {
     if (id === 'root') return '/';
@@ -121,7 +143,7 @@ const TerminalApp: React.FC = () => {
           addOutput(`Opening ${app.name}...`);
         } else {
           addOutput(`open: application not found: ${appName}`);
-          addOutput(`Available apps: ${Object.values(APPS).map(a => a.id).join(', ')}`);
+          // addOutput(`Available apps: ${Object.values(APPS).map(a => a.id).join(', ')}`);
         }
         break;
       case 'touch':
@@ -159,18 +181,13 @@ const TerminalApp: React.FC = () => {
         if (!targetCat) {
           addOutput('cat: missing operand');
         } else {
-          const currentDir = fileSystem[currentDirId];
-          const childId = currentDir.children?.find(id => fileSystem[id]?.name === targetCat);
+          const dir = fileSystem[currentDirId];
+          const childId = dir.children?.find(id => fileSystem[id]?.name === targetCat);
           if (childId) {
             const node = fileSystem[childId];
-            if (node.type === 'file') {
-              addOutput(node.content || '(empty)');
-            } else {
-              addOutput(`cat: ${targetCat}: Is a directory`);
-            }
-          } else {
-            addOutput(`cat: ${targetCat}: No such file or directory`);
-          }
+            if (node.type === 'file') addOutput(node.content || '(empty)');
+            else addOutput(`cat: ${targetCat}: Is a directory`);
+          } else addOutput(`cat: ${targetCat}: No such file or directory`);
         }
         break;
       case 'ls':
@@ -191,12 +208,12 @@ const TerminalApp: React.FC = () => {
       case 'cd':
         const target = args[1];
         if (!target || target === '~') {
-          setCurrentDirId('home');
+          handleCd('home');
         } else if (target === '..') {
           const parentId = fileSystem[currentDirId]?.parentId;
-          if (parentId) setCurrentDirId(parentId);
+          if (parentId) handleCd(parentId);
         } else if (target === '/') {
-          setCurrentDirId('root');
+          handleCd('root');
         } else if (target === '.') {
           // do nothing
         } else {
@@ -205,7 +222,7 @@ const TerminalApp: React.FC = () => {
           if (foundId) {
             const foundNode = fileSystem[foundId];
             if (foundNode.type === 'folder') {
-              setCurrentDirId(foundId);
+              handleCd(foundId);
             } else {
               addOutput(`cd: not a directory: ${target}`);
             }
@@ -221,16 +238,15 @@ const TerminalApp: React.FC = () => {
         } else {
           const currentDir = fileSystem[currentDirId];
           const exists = currentDir.children?.some(id => fileSystem[id]?.name === folderName);
-          if (exists) {
-            addOutput(`mkdir: ${folderName}: File exists`);
-          } else {
+          if (exists) addOutput(`mkdir: ${folderName}: File exists`);
+          else {
             createFolder(currentDirId, folderName);
             addOutput(`Directory created: ${folderName}`);
           }
         }
         break;
       case 'whoami':
-        addOutput('user');
+        addOutput('ether-user');
         break;
       default:
         if (cmd === 'echo') {
@@ -249,7 +265,6 @@ const TerminalApp: React.FC = () => {
   }, [history]);
 
   const handleTerminalClick = () => {
-    // Only focus if not selecting text
     if (window.getSelection()?.toString().length === 0) {
       document.getElementById('term-input')?.focus();
     }
@@ -257,12 +272,14 @@ const TerminalApp: React.FC = () => {
 
   return (
     <div
-      className="h-full bg-[#0d0f14] text-[#a9b1d6] font-mono text-sm p-6 flex flex-col relative overflow-hidden"
+      className={cn("flex flex-col relative overflow-hidden h-full font-mono text-sm text-[#a9b1d6]", className)}
       onClick={handleTerminalClick}
     >
-      <div className="absolute bottom-10 right-10 opacity-[0.03] pointer-events-none transform rotate-12">
-        <Terminal size={400} />
-      </div>
+      {showWatermark && (
+        <div className="absolute bottom-10 right-10 opacity-[0.03] pointer-events-none transform rotate-12">
+          <Terminal size={400} />
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto relative z-10 scrollbar-hide">
         {history.map((line, i) => (
@@ -297,6 +314,10 @@ const TerminalApp: React.FC = () => {
       </div>
     </div>
   );
+};
+
+const TerminalApp: React.FC = () => {
+  return <TerminalCore className="bg-[#0d0f14] p-6" showWatermark={true} />;
 };
 
 export default TerminalApp;

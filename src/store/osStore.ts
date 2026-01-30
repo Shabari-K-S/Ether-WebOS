@@ -374,7 +374,7 @@ export const useOSStore = create<OSState>()(
     }),
     {
       name: 'ether-os-storage',
-      version: 2,
+      version: 3,
       partialize: (state) => ({
         theme: state.theme,
         fileSystem: state.fileSystem,

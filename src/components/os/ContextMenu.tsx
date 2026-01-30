@@ -4,6 +4,7 @@ import { useOSStore } from '../../store/osStore';
 
 export interface ContextMenuItem {
     label?: string;
+    icon?: React.ReactNode;
     action?: () => void;
     disabled?: boolean;
     danger?: boolean;
@@ -50,10 +51,10 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
     return createPortal(
         <div
             ref={menuRef}
-            className={`fixed z-[9999] w-52 rounded-xl border shadow-xl backdrop-blur-xl
+            className={`fixed z-[9999] min-w-[160px] max-w-[240px] rounded-xl border shadow-xl backdrop-blur-xl
         ${theme.isDarkMode
-                    ? 'bg-black/60 border-white/10 text-white'
-                    : 'bg-white/80 border-black/5 text-black'
+                    ? 'bg-black/80 border-white/10 text-white'
+                    : 'bg-white/90 border-black/5 text-black'
                 }
         overflow-hidden animate-in fade-in zoom-in-95 duration-100 ease-out p-1.5
       `}
@@ -82,7 +83,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
                         disabled={item.disabled}
                         className={`
               w-full text-left px-3 py-1.5 rounded-lg text-sm font-medium transition-colors
-              flex items-center justify-between
+              flex items-center
               ${item.disabled
                                 ? 'opacity-50 cursor-not-allowed'
                                 : theme.isDarkMode
@@ -92,7 +93,12 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
               ${item.danger && !item.disabled ? 'text-red-400 hover:bg-red-500/10 hover:text-red-500' : ''}
             `}
                     >
-                        {item.label}
+                        {item.icon && (
+                            <span className={`mr-2.5 flex items-center justify-center opacity-80 ${item.danger ? 'text-red-400' : ''}`}>
+                                {item.icon}
+                            </span>
+                        )}
+                        <span className="flex-1 truncate">{item.label}</span>
                     </button>
                 );
             })}

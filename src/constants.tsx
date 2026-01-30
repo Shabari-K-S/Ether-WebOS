@@ -15,6 +15,7 @@ import ClockApp from './components/apps/Clock';
 import AboutApp from './components/apps/About';
 import SnakeApp from './components/apps/Snake';
 import MinesweeperApp from './components/apps/Minesweeper';
+import VSCodeApp from './components/apps/VSCode';
 
 import { APP_METADATA } from './apps.config';
 
@@ -34,6 +35,7 @@ const APP_COMPONENTS: Record<AppID, React.ComponentType<any>> = {
   about: AboutApp,
   snake: SnakeApp,
   minesweeper: MinesweeperApp,
+  vscode: VSCodeApp,
 };
 
 // Merge metadata with components

@@ -40,7 +40,7 @@ const Dock: React.FC = () => {
       >
         <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-200 bg-zinc-200 to-br from-gray-300 to-gray-600 text-black">
           {typeof icon === 'string' ? (
-            <img src={icon} alt={name} className="w-full h-full object-contain drop-shadow-md" />
+            <img src={icon} alt={name} className="w-full h-full object-contain drop-shadow-md bg-transparent" />
           ) : (
             React.createElement(icon, { size: 28 })
           )}
@@ -57,12 +57,50 @@ const Dock: React.FC = () => {
     )
   };
 
-  const hasMaximizedWindow = windows.some(w => w.isMaximized && !w.isMinimized);
+  /* 
+     * Auto-Hide Logic:
+     * Detected if any non-minimized window overlaps with the Dock's bounding box.
+     * We approximate Dock dimensions since ref measurements might strictly require layout effects.
+     */
+  const dockHeight = 96; // ~12 (pb-3) + 12 (pt-3) + 64 (h-16 icon) + padding
+  const dockWidth = dockApps.length * 64 + 32; // Rough estimate: 64px per item + padding
+
+  const isObstructed = windows.some(w => {
+    if (w.isMinimized) return false;
+
+    // If maximized, it definitely obstructs
+    if (w.isMaximized) return true;
+
+    // Check for geometric overlap
+    // Resolve effective size (handle 0x0 default in store)
+    const appConfig = APPS[w.appId];
+    const width = w.size.width || appConfig?.defaultWidth || 800;
+    const height = w.size.height || appConfig?.defaultHeight || 600;
+
+    const wBottom = w.position.y + height;
+    const wRight = w.position.x + width;
+    const wLeft = w.position.x;
+
+    const screenHeight = window.innerHeight;
+    const screenWidth = window.innerWidth;
+
+    // Expand dock hit area slightly for better UX
+    const dockTop = screenHeight - dockHeight - 20;
+    const dockLeft = (screenWidth / 2) - (dockWidth / 2) - 20;
+    const dockRight = (screenWidth / 2) + (dockWidth / 2) + 20;
+
+    const isVerticallyOverlapping = wBottom > dockTop;
+    const isHorizontallyOverlapping = (wRight > dockLeft) && (wLeft < dockRight);
+
+    return isVerticallyOverlapping && isHorizontallyOverlapping;
+  });
+
+  const shouldHide = isObstructed;
 
   return (
     <div className={`
       fixed bottom-4 left-1/2 transform -translate-x-1/2 z-[70] transition-all duration-500 ease-in-out
-      ${hasMaximizedWindow ? 'translate-y-24 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
+      ${shouldHide ? 'translate-y-[150%] opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}
     `}>
       <div
         ref={dockRef}

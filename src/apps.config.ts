@@ -12,6 +12,7 @@ import CalendarIcon from './assets/calendar.webp';
 import ClockIcon from './assets/clock.webp';
 import snakeIcon from './assets/snake.webp';
 import minesweeperIcon from './assets/minesweeper.webp';
+import VSCodeIcon from './assets/vscode.png';
 
 export interface AppMetadata {
     id: AppID;
@@ -143,5 +144,14 @@ export const APP_METADATA: Record<AppID, AppMetadata> = {
         defaultWidth: 550,
         defaultHeight: 680,
         hideTitleBar: true,
+    },
+    vscode: {
+        id: 'vscode',
+        name: 'VS Code',
+        icon: VSCodeIcon,
+        defaultWidth: 1000,
+        defaultHeight: 700,
+        hideTitleBar: true,
+        favorite: true,
     },
 };
